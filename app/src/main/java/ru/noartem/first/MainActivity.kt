@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
             FirstTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) {
                     Greeting(
-                        name = "World",
+                        name = "South Ural State University",
                         modifier = Modifier.padding(PaddingValues(
                             all = 120.dp,
                         ))
