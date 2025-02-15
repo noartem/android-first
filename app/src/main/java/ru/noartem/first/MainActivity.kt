@@ -16,25 +16,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import ru.noartem.first.ui.theme.FirstTheme
 
 class MainActivity : ComponentActivity() {
+    private val iphoneCase = Product(price = 123.5, discountPercent = 50)
+    private val priceFormatter: PriceFormatter = LocalePriceFormatter()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+
             FirstTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Text(
-                        text = formatPrice(1234.56, ULocale.US),
+                        text = priceFormatter.format(iphoneCase.calcDiscountPrice()),
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
         }
     }
-}
-
-fun formatPrice(price: Double, locale: ULocale = ULocale.getDefault()): String {
-    val currencyFormatter = NumberFormat.getCurrencyInstance(locale)
-    return currencyFormatter.format(price)
 }
 
 @Composable
