@@ -1,5 +1,6 @@
 package ru.noartem.first
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,15 +15,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import ru.noartem.first.ui.theme.FirstTheme
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             FirstTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) {
                     Greeting(
-                        name = "World",
-                        modifier = Modifier.padding(innerPadding)
+                        name = "World"
                     )
                 }
             }
