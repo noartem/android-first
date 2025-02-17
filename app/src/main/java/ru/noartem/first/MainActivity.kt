@@ -1,7 +1,5 @@
 package ru.noartem.first
 
-import android.icu.text.NumberFormat
-import android.icu.util.ULocale
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,17 +15,15 @@ import ru.noartem.first.ui.theme.FirstTheme
 
 class MainActivity : ComponentActivity() {
     private val iphoneCase = Product(price = 123.5, discountPercent = 50)
-    private val priceFormatter: PriceFormatter = LocalePriceFormatter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
             FirstTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Text(
-                        text = priceFormatter.format(iphoneCase.calcDiscountPrice()),
+                    PriceViewer(
+                        price = iphoneCase.calcDiscountPrice(),
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -37,9 +33,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun PriceViewer(price: Double, modifier: Modifier = Modifier) {
+    val priceFormatter: PriceFormatter = LocalePriceFormatter()
+
     Text(
-        text = "Hello $name!",
+        text = priceFormatter.format(price),
         modifier = modifier
     )
 }
@@ -48,6 +46,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     FirstTheme {
-        Greeting("Android")
+        PriceViewer(115.0)
     }
 }
