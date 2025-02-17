@@ -1,9 +1,11 @@
 package ru.noartem.first
 
+import android.icu.util.ULocale
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -24,6 +26,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     PriceViewer(
                         price = iphoneCase.calcDiscountPrice(),
+                        formatter = LocalePriceFormatter(),
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -33,11 +36,13 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PriceViewer(price: Double, modifier: Modifier = Modifier) {
-    val priceFormatter: PriceFormatter = LocalePriceFormatter()
-
+fun PriceViewer(
+    price: Double,
+    modifier: Modifier = Modifier,
+    formatter: PriceFormatter = DefaultPriceFormatter()
+) {
     Text(
-        text = priceFormatter.format(price),
+        text = formatter.format(price),
         modifier = modifier
     )
 }
@@ -46,6 +51,10 @@ fun PriceViewer(price: Double, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     FirstTheme {
-        PriceViewer(115.0)
+        Column {
+            PriceViewer(115.0)
+            PriceViewer(115.0, formatter = LocalePriceFormatter())
+            PriceViewer(115.0, formatter = LocalePriceFormatter(ULocale.US))
+        }
     }
 }
