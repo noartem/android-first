@@ -27,15 +27,19 @@ class MainActivity : ComponentActivity() {
         )
     )
 
+    private val presenter = Presenter(
+        cart = cart,
+        priceFormatter = LocalePriceFormatter(),
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             FirstTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    PriceViewer(
-                        price = cart.calcTotalPrice(),
-                        formatter = LocalePriceFormatter(),
+                    PresenterView(
+                        presenter = presenter,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -45,7 +49,18 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PriceViewer(
+fun PresenterView(
+    presenter: Presenter,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = presenter.getTotalPrice(),
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun PriceView(
     price: Double,
     modifier: Modifier = Modifier,
     formatter: PriceFormatter = DefaultPriceFormatter()
@@ -61,9 +76,10 @@ fun PriceViewer(
 fun GreetingPreview() {
     FirstTheme {
         Column {
-            PriceViewer(115.0)
-            PriceViewer(115.0, formatter = LocalePriceFormatter())
-            PriceViewer(115.0, formatter = LocalePriceFormatter(ULocale.US))
+            PriceView(115.0)
+            PriceView(115.0, formatter = LocalePriceFormatter())
+            PriceView(115.0, formatter = LocalePriceFormatter(ULocale.JAPAN))
+            PriceView(115.0, formatter = LocalePriceFormatter(ULocale.US))
         }
     }
 }
