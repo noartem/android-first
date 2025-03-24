@@ -1,6 +1,7 @@
 package ru.noartem.first
 
 class Product(
+    val name: String,
     private val price: Double,
     private val discountPercent: Int = 0
 ) {

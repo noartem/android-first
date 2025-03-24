@@ -16,7 +16,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import ru.noartem.first.ui.theme.FirstTheme
 
 class MainActivity : ComponentActivity() {
-    private val iphoneCase = Product(price = 123.5, discountPercent = 50)
+    private val cart = Cart(
+        listOf(
+            Product(name = "iPhone XR", price = 499.99, discountPercent = 10),
+            Product(name = "iPhone XS", price = 599.99, discountPercent = 15),
+            Product(name = "iPhone 11", price = 699.99, discountPercent = 12),
+            Product(name = "iPhone 12", price = 799.99, discountPercent = 8),
+            Product(name = "iPhone 13", price = 899.99, discountPercent = 5),
+            Product(name = "iPhone 14", price = 999.99, discountPercent = 3)
+        )
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +34,7 @@ class MainActivity : ComponentActivity() {
             FirstTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     PriceViewer(
-                        price = iphoneCase.calcDiscountPrice(),
+                        price = cart.calcTotalPrice(),
                         formatter = LocalePriceFormatter(),
                         modifier = Modifier.padding(innerPadding)
                     )
