@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -29,7 +30,16 @@ fun OrderConfirmationScreen(
 ) {
     val ctx = LocalContext.current
     var nameState by remember { mutableStateOf("") }
+    var nameFocused by remember { mutableStateOf(false) }
+    var nameTouched by remember { mutableStateOf(false) }
     var phoneState by remember { mutableStateOf("") }
+    var phoneFocused by remember { mutableStateOf(false) }
+    var phoneTouched by remember { mutableStateOf(false) }
+
+    val isNameValid = nameState.isNotBlank()
+    val phoneDigits = phoneState.filter { it.isDigit() }
+    val isPhoneValid = phoneState.length == 11 && phoneDigits.length == 11
+    val isFormValid = isNameValid && isPhoneValid
 
     Box(modifier) {
         Column(
@@ -37,7 +47,7 @@ fun OrderConfirmationScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Row (
+            Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -47,9 +57,7 @@ fun OrderConfirmationScreen(
                     text = "Оформление заказа",
                     style = MaterialTheme.typography.headlineSmall,
                 )
-
                 Spacer(modifier = Modifier.width(12.dp))
-
                 Image(
                     painter = painterResource(id = R.drawable.baseline_shopping_cart_24),
                     contentDescription = stringResource(id = R.string.shopping_cart)
@@ -76,9 +84,24 @@ fun OrderConfirmationScreen(
                 value = nameState,
                 onValueChange = { nameState = it },
                 label = { Text("ФИО") },
-                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Например: Иванов Иван Иванович") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged { focusState ->
+                        if (focusState.isFocused) {
+                            nameFocused = true
+                        } else if (nameFocused) {
+                            nameTouched = true
+                        }
+                    },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                isError = nameTouched && !isNameValid,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                supportingText = {
+                    if (nameTouched && !isNameValid) {
+                        Text("ФИО не должно быть пустым", color = MaterialTheme.colorScheme.error)
+                    }
+                },
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -87,9 +110,27 @@ fun OrderConfirmationScreen(
                 value = phoneState,
                 onValueChange = { phoneState = it },
                 label = { Text("Номер телефона") },
-                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Например: 88005553535") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged { focusState ->
+                        if (focusState.isFocused) {
+                            phoneFocused = true
+                        } else if (nameFocused) {
+                            phoneTouched = true
+                        }
+                    },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                isError = phoneTouched && !isPhoneValid,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                supportingText = {
+                    if (phoneTouched && !isPhoneValid) {
+                        Text(
+                            "Введите корректный номер телефона (11 цифр)",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -104,7 +145,8 @@ fun OrderConfirmationScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .height(50.dp),
+                enabled = isFormValid
             ) {
                 Text("Подтвердить заказ")
             }
