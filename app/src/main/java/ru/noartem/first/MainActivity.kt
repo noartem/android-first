@@ -5,41 +5,40 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.NavController
+import androidx.navigation.compose.composable
 import ru.noartem.first.ui.theme.FirstTheme
 
 class MainActivity : ComponentActivity() {
-    private val cart = Cart(
-        listOf(
-            Product(name = "iPhone XR", price = 499.99, discountPercent = 10),
-            Product(name = "iPhone XS", price = 599.99, discountPercent = 15),
-            Product(name = "iPhone 11", price = 699.99, discountPercent = 12),
-            Product(name = "iPhone 12", price = 799.99, discountPercent = 8),
-            Product(name = "iPhone 13", price = 899.99, discountPercent = 5),
-            Product(name = "iPhone 14", price = 999.99, discountPercent = 3)
-        )
-    )
-
-    private val presenter = Presenter(
-        cart = cart,
-        priceFormatter = LocalePriceFormatter(),
-    )
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val cart = Cart(
+                listOf(
+                    Product(name = "iPhone XR", price = 499.99, discountPercent = 10),
+                )
+            )
+
             FirstTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    PresenterView(
-                        presenter = presenter,
+                    App(
+                        cart = cart,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -49,14 +48,43 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PresenterView(
-    presenter: Presenter,
+fun App(
+    cart: Cart,
     modifier: Modifier = Modifier,
 ) {
-    Text(
-        text = presenter.getTotalPrice(),
-        modifier = modifier,
-    )
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "main") {
+        composable("main") {
+            MainScreen(
+                cart = cart,
+                navController = navController,
+                modifier = modifier
+            )
+        }
+        composable("order-confirmation") {
+            OrderConfirmationScreen(cart = cart, modifier = modifier)
+        }
+    }
+}
+
+@Composable
+fun MainScreen(
+    cart: Cart,
+    modifier: Modifier = Modifier,
+    navController: NavController? = null,
+) {
+    Column(modifier) {
+        PriceView(
+            price = cart.calcTotalPrice(),
+            formatter = LocalePriceFormatter(),
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Button(onClick = { navController?.navigate("order-confirmation") }) {
+            Text("К оформлению заказа")
+        }
+    }
 }
 
 @Composable
@@ -73,7 +101,24 @@ fun PriceView(
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun MainScreenPreview() {
+    FirstTheme {
+        Box(modifier = Modifier.height(400.dp)) {
+            MainScreen(
+                cart = Cart(
+                    listOf(
+                        Product(name = "iPhone XR", price = 499.99, discountPercent = 10),
+                    )
+                ),
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PriceViewPreview() {
     FirstTheme {
         Column {
             PriceView(115.0)

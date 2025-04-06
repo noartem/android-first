@@ -12,7 +12,7 @@ class Presenter(
         } else {
             println("Cart products:")
             cart.products.forEach { product ->
-                println("\t${product.name}: ${priceFormatter.format(product.calcDiscountPrice())}")
+                println("\t${product.name}: ${priceFormatter.format(product.calcPrice())}")
             }
             println("Total cost: ${priceFormatter.format(cart.calcTotalPrice())}")
         }

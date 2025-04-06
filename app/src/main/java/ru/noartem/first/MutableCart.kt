@@ -1,7 +1,7 @@
 package ru.noartem.first
 
 class MutableCart(private val products: MutableList<Product> = mutableListOf()) {
-    fun calcTotalPrice(): Double = products.sumOf { it.calcDiscountPrice() }
+    fun calcTotalPrice(): Double = products.sumOf { it.calcPrice() }
 
     fun addProduct(product: Product) {
         products.add(product)
@@ -21,7 +21,7 @@ class MutableCart(private val products: MutableList<Product> = mutableListOf()) 
         } else {
             println("Cart products:")
             products.forEach { product ->
-                println("\t${product.name}: ${priceFormatter.format(product.calcDiscountPrice())}")
+                println("\t${product.name}: ${priceFormatter.format(product.calcPrice())}")
             }
             println("Total cost: ${priceFormatter.format(calcTotalPrice())}")
         }
