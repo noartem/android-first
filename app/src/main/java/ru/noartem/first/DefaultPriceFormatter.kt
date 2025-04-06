@@ -1,8 +1,6 @@
 package ru.noartem.first
 
 import android.annotation.SuppressLint
-import android.icu.text.NumberFormat
-import android.icu.util.ULocale
 
 class DefaultPriceFormatter() : PriceFormatter {
     @SuppressLint("DefaultLocale")

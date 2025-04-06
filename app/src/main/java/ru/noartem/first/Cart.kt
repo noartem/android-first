@@ -1,6 +1,6 @@
 package ru.noartem.first
 
-class Cart(val products: List<Product> = listOf()) {
+class Cart(val products: MutableList<Product> = mutableListOf()) {
     fun calcTotalPrice(discount: Boolean = true): Double =
         products.sumOf { it.calcPrice(discount) }
 
@@ -8,14 +8,26 @@ class Cart(val products: List<Product> = listOf()) {
         products.sumOf { it.calcDiscount() }
 
     fun addProduct(product: Product): Cart {
-        return Cart(products + product)
+        if (!products.contains(product)) {
+            products.add(product)
+        }
+
+        return this
     }
 
     fun removeProduct(product: Product): Cart {
-        return Cart(products - product)
+        if (products.contains(product)) {
+            products.remove(product)
+        }
+
+        return this
     }
 
     fun removeProduct(i: Int): Cart {
-        return Cart(products - products[i])
+        if (i >= 0 && i < products.size) {
+            products.removeAt(i)
+        }
+
+        return this
     }
 }

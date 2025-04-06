@@ -1,31 +1,47 @@
 package ru.noartem.first
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import ru.noartem.first.ui.theme.FirstTheme
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import ru.noartem.first.ui.theme.FirstTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderConfirmationScreen(
+    navController: NavController,
     cart: Cart,
-    modifier: Modifier = Modifier,
     priceFormatter: PriceFormatter = DefaultPriceFormatter(),
 ) {
     val ctx = LocalContext.current
@@ -41,29 +57,24 @@ fun OrderConfirmationScreen(
     val isPhoneValid = phoneState.length == 11 && phoneDigits.length == 11
     val isFormValid = isNameValid && isPhoneValid
 
-    Box(modifier) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Оформление заказа") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                    }
+                }
+            )
+        },
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(bottom = 24.dp)
-            ) {
-                Text(
-                    text = "Оформление заказа",
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_shopping_cart_24),
-                    contentDescription = stringResource(id = R.string.shopping_cart)
-                )
-            }
-
             cart.calcTotalPrice()
 
             OrderSummaryRow(
@@ -179,12 +190,10 @@ fun OrderSummaryRow(label: String, value: String, isTotal: Boolean = false) {
 @Composable
 fun OrderConfirmationScreenPreview() {
     FirstTheme {
+        val navController = NavController(LocalContext.current)
         OrderConfirmationScreen(
-            cart = Cart(
-                listOf(
-                    Product(name = "iPhone XR", price = 1299.99, discountPercent = 33)
-                )
-            ),
+            navController = navController,
+            cart = Cart(sampleProducts.toMutableList()),
         )
     }
 }

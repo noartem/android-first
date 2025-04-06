@@ -5,23 +5,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
-import androidx.navigation.NavController
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import ru.noartem.first.ui.theme.FirstTheme
 
 class MainActivity : ComponentActivity() {
@@ -29,102 +18,71 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val cart = Cart(
-                listOf(
-                    Product(name = "iPhone XR", price = 499.99, discountPercent = 10),
-                )
-            )
+            var cart = Cart()
 
             FirstTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    App(
-                        cart = cart,
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                AppNavigation(
+                    cart = cart,
+                    products = sampleProducts,
+                    priceFormatter = LocalePriceFormatter(ULocale.US),
+                    addToCart = { cart = cart.addProduct(it) },
+                    removeFromCart = { cart = cart.removeProduct(it) }
+                )
             }
         }
     }
 }
 
 @Composable
-fun App(
+fun AppNavigation(
     cart: Cart,
-    modifier: Modifier = Modifier,
+    products: List<Product>,
+    priceFormatter: PriceFormatter,
+    addToCart: (Product) -> Unit,
+    removeFromCart: (Product) -> Unit = {}
 ) {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "main") {
-        composable("main") {
-            MainScreen(
-                cart = cart,
+
+    NavHost(navController = navController, startDestination = Screen.Catalog.route) {
+        composable(Screen.Catalog.route) {
+            CatalogScreen(
                 navController = navController,
-                modifier = modifier
+                products = products
             )
         }
-        composable("order-confirmation") {
-            OrderConfirmationScreen(cart = cart, modifier = modifier)
-        }
-    }
-}
 
-@Composable
-fun MainScreen(
-    cart: Cart,
-    modifier: Modifier = Modifier,
-    navController: NavController? = null,
-) {
-    Column(modifier) {
-        PriceView(
-            price = cart.calcTotalPrice(),
-            formatter = LocalePriceFormatter(),
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Button(onClick = { navController?.navigate("order-confirmation") }) {
-            Text("К оформлению заказа")
-        }
-    }
-}
-
-@Composable
-fun PriceView(
-    price: Double,
-    modifier: Modifier = Modifier,
-    formatter: PriceFormatter = DefaultPriceFormatter()
-) {
-    Text(
-        text = formatter.format(price),
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreview() {
-    FirstTheme {
-        Box(modifier = Modifier.height(400.dp)) {
-            MainScreen(
-                cart = Cart(
-                    listOf(
-                        Product(name = "iPhone XR", price = 499.99, discountPercent = 10),
-                    )
-                ),
-                modifier = Modifier.padding(16.dp)
+        composable(
+            route = Screen.ProductDetail.route,
+            arguments = listOf(navArgument("productId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId")
+            val product = products.find { it.id == productId }
+            ProductDetailScreen(
+                navController = navController,
+                product = product,
+                addToCart = {
+                    if (product != null) {
+                        addToCart(product)
+                    }
+                }
             )
         }
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun PriceViewPreview() {
-    FirstTheme {
-        Column {
-            PriceView(115.0)
-            PriceView(115.0, formatter = LocalePriceFormatter())
-            PriceView(115.0, formatter = LocalePriceFormatter(ULocale.JAPAN))
-            PriceView(115.0, formatter = LocalePriceFormatter(ULocale.US))
+        composable(Screen.Cart.route) {
+            CartScreen(
+                navController = navController,
+                cart = cart,
+                priceFormatter = priceFormatter,
+                removeFromCart = { removeFromCart(it) }
+            )
+        }
+
+        composable(Screen.OrderConfirmation.route) {
+            OrderConfirmationScreen(
+                navController = navController,
+                cart = cart,
+                priceFormatter = priceFormatter,
+            )
         }
     }
 }
